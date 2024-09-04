@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeraBox Coin Collector</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="welcome-screen" class="fullscreen">
+        <div class="welcome-content">
+            <h1 class="welcome-title">Welcome to TeraBox Coin Collector</h1>
+            <p class="welcome-description">Get ready to collect coins and boost your TeraBox storage!</p>
+            <button id="get-started-btn" class="btn-3d">Get Started</button>
+        </div>
+        <div class="animation-container">
+            <div class="coin-animation"></div>
+            <div class="sparkle-animation"></div>
+        </div>
+    </div>
+
+    <div class="cursor"></div>
+    <canvas id="particleCanvas"></canvas>
+    <div id="app">
+        <div id="user-info">
+            <div id="profile-picture-container">
+                <img id="profile-picture" src="" alt="Profile Picture">
+                <div class="vip-crown">👑</div>
+                <div class="glitter-ring"></div>
+                <div class="particle-container"></div>
+                <canvas id="sparkle-canvas"></canvas>
+            </div>
+            <span id="username"></span>
+        </div>
+        <div id="coin-info">
+            <span>Coins: </span>
+            <span id="coin-count"></span>
+        </div>
+        <button id="start-button">Start Collecting</button>
+        <button id="stop-button" style="display: none;">Stop Collecting</button>
+        <button id="log-button">Show Log</button>
+		<button id="terabox-button">Sign Up for TeraBox</button>
+    </div>
+    <div id="log-window" class="hidden">
+        <div id="log-header">
+            <span>Network Log</span>
+            <button id="close-log">×</button>
+        </div>
+        <div id="log-content"></div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
