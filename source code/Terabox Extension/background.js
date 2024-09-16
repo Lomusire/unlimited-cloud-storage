@@ -1,5 +1,6 @@
 let isRunning = false;
 let logs = [];
+let teraboxSubdomain = ''; // Store the subdomain
 
 function addLog(message) {
     const timestamp = new Date().toISOString();
@@ -20,7 +21,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (!isRunning) {
                 isRunning = true;
                 addLog('Started coin collection process');
-                collectCoins(); // Start the first collection immediately
+                checkRedirect().then((subdomain) => {
+                    teraboxSubdomain = subdomain;
+                    collectCoins(); // Start the first collection immediately
+                });
                 sendResponse({ success: true });
             } else {
                 sendResponse({ success: false, message: 'Already running' });
@@ -37,9 +41,41 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case 'getLogs':
             sendResponse(logs);
             break;
+        case 'getUserInfoAndCoinCount':
+            getUserInfoAndCoinCount()
+                .then(data => sendResponse(data))
+                .catch(error => sendResponse({error: error.message}));
+            return true; // Indicates that the response is asynchronous
     }
     return true;
 });
+
+async function checkRedirect() {
+    try {
+        const cookies = await chrome.cookies.getAll({domain: "terabox.com"});
+        const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+
+        const response = await fetch('https://www.terabox.com', { 
+            method: 'GET',
+            redirect: 'follow', // Allow redirects
+            credentials: 'include',
+            headers: {
+                'Cookie': cookieString
+            }
+        });
+        
+        const finalUrl = response.url;
+        const url = new URL(finalUrl);
+        teraboxSubdomain = url.hostname.split('.')[0];
+        addLog(`Redirected to: ${finalUrl}`);
+        addLog(`Using subdomain: ${teraboxSubdomain}`);
+
+        return teraboxSubdomain;
+    } catch (error) {
+        addLog(`Error checking redirect: ${error.message}`);
+        return ''; // Return empty string in case of error
+    }
+}
 
 async function collectCoins() {
     while (isRunning) {
@@ -48,7 +84,7 @@ async function collectCoins() {
             
             await delay(1000); // 1 second delay before starting the game
             
-            const startData = await fetchWithRetry('https://www.terabox.com/rest/1.0/imact/miner/start');
+            const startData = await fetchWithRetry(getTeraboxUrl('/rest/1.0/imact/miner/start'));
             addLog(`Start game response data: ${JSON.stringify(startData)}`);
             
             if (startData.errno !== 0) {
@@ -67,7 +103,7 @@ async function collectCoins() {
             await Promise.all(objectTypes.map(async (objectType) => {
                 if (!isRunning) return;
                 const reportId = generateReportId();
-                const url = `https://www.terabox.com/rest/1.0/imact/miner/getitem?game_id=${gameId}&object_type=${objectType}&report_id=${reportId}`;
+                const url = getTeraboxUrl(`/rest/1.0/imact/miner/getitem?game_id=${gameId}&object_type=${objectType}&report_id=${reportId}`);
                 const getItemData = await fetchWithRetry(url);
                 addLog(`Get item response for object type ${objectType}: ${JSON.stringify(getItemData)}`);
                 await delay(200); // Short delay between item requests
@@ -79,7 +115,7 @@ async function collectCoins() {
             await delay(2000);
 
             addLog('Finishing game...');
-            const finishData = await fetchWithRetry(`https://www.terabox.com/rest/1.0/imact/miner/finishgame?game_id=${gameId}`);
+            const finishData = await fetchWithRetry(getTeraboxUrl(`/rest/1.0/imact/miner/finishgame?game_id=${gameId}`));
             addLog(`Finish game response: ${JSON.stringify(finishData)}`);
 
             addLog('Coin collection cycle completed');
@@ -103,12 +139,16 @@ function generateReportId() {
 
 async function fetchWithRetry(url, options = {}, retries = 3) {
     try {
+        const cookies = await chrome.cookies.getAll({domain: "terabox.com"});
+        const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+
         const response = await fetch(url, {
             method: 'GET',
             credentials: 'include',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Cookie': cookieString
             },
             ...options
         });
@@ -118,6 +158,28 @@ async function fetchWithRetry(url, options = {}, retries = 3) {
             await delay(1000);
             return fetchWithRetry(url, options, retries - 1);
         }
+        throw error;
+    }
+}
+
+function getTeraboxUrl(path) {
+    return `https://${teraboxSubdomain || 'www'}.terabox.com${path}`;
+}
+
+async function getUserInfoAndCoinCount() {
+    try {
+        const userInfoUrl = getTeraboxUrl('/passport/get_info');
+        const userInfoResponse = await fetchWithRetry(userInfoUrl);
+        
+        const coinCountUrl = getTeraboxUrl('/rest/1.0/inte/system/getrecord');
+        const coinCountResponse = await fetchWithRetry(coinCountUrl);
+        
+        return {
+            userInfo: userInfoResponse,
+            coinCount: coinCountResponse
+        };
+    } catch (error) {
+        addLog(`Error fetching user info and coin count: ${error.message}`);
         throw error;
     }
 }

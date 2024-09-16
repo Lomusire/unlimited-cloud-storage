@@ -10,38 +10,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const logWindow = document.getElementById('log-window');
     const closeLogButton = document.getElementById('close-log');
     const logContent = document.getElementById('log-content');
-	const teraboxButton = document.getElementById('terabox-button');
+    const teraboxButton = document.getElementById('terabox-button');
 
-function updateTeraboxButton(isLoggedIn) {
-    if (isLoggedIn) {
-        teraboxButton.textContent = 'Open TeraBox';
-        teraboxButton.addEventListener('click', () => {
-            chrome.tabs.create({ url: 'https://www.terabox.com' });
-        });
-    } else {
-        teraboxButton.textContent = 'Sign Up for TeraBox';
-        teraboxButton.addEventListener('click', () => {
-            chrome.tabs.create({ url: 'https://terabox.com/s/1BjOBgtABLr0eRnUAEHWyug' });
-        });
+    function updateTeraboxButton(isLoggedIn) {
+        if (isLoggedIn) {
+            teraboxButton.textContent = 'Open TeraBox';
+            teraboxButton.addEventListener('click', () => {
+                chrome.tabs.create({ url: 'https://www.terabox.com' });
+            });
+        } else {
+            teraboxButton.textContent = 'Sign Up for TeraBox';
+            teraboxButton.addEventListener('click', () => {
+                chrome.tabs.create({ url: 'https://terabox.com/s/1BjOBgtABLr0eRnUAEHWyug' });
+            });
+        }
     }
-}
 
-function checkTeraboxLoginStatus() {
-    fetch('https://www.terabox.com/api/activity/invite/v1/geninvite', {
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        const isLoggedIn = data.errno === 0;
-        updateTeraboxButton(isLoggedIn);
-    })
-    .catch(error => {
-        console.error('Error checking TeraBox login status:', error);
-        updateTeraboxButton(false);
-    });
-}
+    function checkTeraboxLoginStatus() {
+        updateUserInfoAndCoinCount();
+    }
 
-checkTeraboxLoginStatus();
+    checkTeraboxLoginStatus();
 
     chrome.storage.local.get('welcomeShown', (result) => {
         if (!result.welcomeShown) {
@@ -79,39 +68,29 @@ checkTeraboxLoginStatus();
         }
     }
 
-    function updateUserInfo() {
-        fetch('https://www.terabox.com/api/activity/invite/v1/geninvite', {
-            credentials: 'include'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.errno === 0) {
-                profilePicture.src = data.data.head_url;
-                username.textContent = data.data.uname;
+    function updateUserInfoAndCoinCount() {
+        chrome.runtime.sendMessage({action: 'getUserInfoAndCoinCount'}, response => {
+            if (response.error) {
+                console.error('Error fetching user info and coin count:', response.error);
+                showError('Failed to load user info and coin count. Please check your connection and login status.');
             } else {
-                console.error('Error fetching user info:', data);
-                showError('Failed to load user info. Please check if you are logged in to TeraBox.');
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching user info:', error);
-            showError('Failed to load user info. Please check your internet connection.');
-        });
-    }
+                if (response.userInfo.code === 0) {
+                    profilePicture.src = response.userInfo.data.head_url;
+                    username.textContent = response.userInfo.data.display_name;
+                    updateTeraboxButton(true);
+                } else {
+                    console.error('Error fetching user info:', response.userInfo);
+                    showError('Failed to load user info. Please check if you are logged in to TeraBox.');
+                    updateTeraboxButton(false);
+                }
 
-    function updateCoinCount() {
-        fetch('https://www.terabox.com/rest/1.0/inte/system/getrecord', {
-            credentials: 'include'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.errno === 0) {
-                coinCount.textContent = data.data.can_used_cnt;
-            } else {
-                console.error('Error fetching coin count:', data);
+                if (response.coinCount.errno === 0) {
+                    coinCount.textContent = response.coinCount.data.can_used_cnt;
+                } else {
+                    console.error('Error fetching coin count:', response.coinCount);
+                }
             }
-        })
-        .catch(error => console.error('Error fetching coin count:', error));
+        });
     }
 
     function updateButtonState(isRunning) {
@@ -185,7 +164,7 @@ checkTeraboxLoginStatus();
 
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.action === 'updateCoinCount') {
-            updateCoinCount();
+            updateUserInfoAndCoinCount();
         } else if (request.action === 'logUpdated') {
             if (!logWindow.classList.contains('hidden')) {
                 updateLog();
@@ -197,17 +176,13 @@ checkTeraboxLoginStatus();
         }
     });
 
-    updateUserInfo();
-    updateCoinCount();
+    updateUserInfoAndCoinCount();
     checkStatus();
 
     setInterval(() => {
-        updateUserInfo();
-        updateCoinCount();
+        updateUserInfoAndCoinCount();
         checkStatus();
     }, 30000);
-
-    checkLoginStatus();
 
     // Particle effect
     const canvas = document.getElementById('particleCanvas');
@@ -294,20 +269,4 @@ function showError(message) {
     errorDiv.style.color = 'red';
     errorDiv.style.marginTop = '10px';
     document.getElementById('app').appendChild(errorDiv);
-}
-
-function checkLoginStatus() {
-    fetch('https://www.terabox.com/api/activity/invite/v1/geninvite', {
-        credentials: 'include'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.errno !== 0) {
-            showError('You are not logged in to TeraBox. Please log in and try again.');
-        }
-    })
-    .catch(error => {
-        console.error('Error checking login status:', error);
-        showError('Unable to check login status. Please ensure you have an active internet connection.');
-    });
 }
