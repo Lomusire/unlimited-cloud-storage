@@ -1,4 +1,4 @@
-#⚠️⚠️⚠️NOT working anymore. Running the extension will lead to loss of coins!! Probably sadly won't be able to fix the extension.⚠️⚠️⚠️  TeraBox Coin Collector Extension
+TeraBox Coin Collector Extension
 
 <p align="center">
   <img src="https://lh3.googleusercontent.com/XYKN1D9li5yEPEkDN-tqDGvfhl3_wrW6eTe1zqQACZEGDxiFSmVPjokPY4ZomDojvruK06d1GtbZfhBckTR55Nbp=s120" alt="TeraBox Coin Collector Logo" width="120"/>
