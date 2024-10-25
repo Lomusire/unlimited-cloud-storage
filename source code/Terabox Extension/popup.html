@@ -39,8 +39,10 @@
         <button id="start-button">Start Collecting</button>
         <button id="stop-button" style="display: none;">Stop Collecting</button>
         <button id="log-button">Show Log</button>
-		<button id="terabox-button">Sign Up for TeraBox</button>
+        <button id="terabox-button">Sign Up for TeraBox</button>
+        <button id="redeem-button" class="btn-3d redeem-btn">Redeem Coins</button>
     </div>
+    
     <div id="log-window" class="hidden">
         <div id="log-header">
             <span>Network Log</span>
@@ -48,6 +50,15 @@
         </div>
         <div id="log-content"></div>
     </div>
+    
+    <div id="embedded-page-container" class="hidden">
+        <div id="embedded-page-header">
+            <span>Redeem Coins</span>
+            <button id="close-embedded-page">×</button>
+        </div>
+        <iframe id="embedded-page-content" src="about:blank"></iframe>
+    </div>
+    
     <script src="popup.js"></script>
 </body>
 </html>

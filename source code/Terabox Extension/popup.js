@@ -11,27 +11,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeLogButton = document.getElementById('close-log');
     const logContent = document.getElementById('log-content');
     const teraboxButton = document.getElementById('terabox-button');
+    const redeemButton = document.getElementById('redeem-button');
+    const embeddedPageContainer = document.getElementById('embedded-page-container');
+    const closeEmbeddedPageButton = document.getElementById('close-embedded-page');
+    const embeddedPageContent = document.getElementById('embedded-page-content');
 
-    function updateTeraboxButton(isLoggedIn) {
-        if (isLoggedIn) {
-            teraboxButton.textContent = 'Open TeraBox';
-            teraboxButton.addEventListener('click', () => {
-                chrome.tabs.create({ url: 'https://www.terabox.com' });
-            });
-        } else {
-            teraboxButton.textContent = 'Sign Up for TeraBox';
-            teraboxButton.addEventListener('click', () => {
-                chrome.tabs.create({ url: 'https://terabox.com/s/1BjOBgtABLr0eRnUAEHWyug' });
-            });
-        }
-    }
+    // Initially hide the redeem button
+    redeemButton.style.display = 'none';
 
-    function checkTeraboxLoginStatus() {
-        updateUserInfoAndCoinCount();
-    }
-
-    checkTeraboxLoginStatus();
-
+    // Welcome screen
     chrome.storage.local.get('welcomeShown', (result) => {
         if (!result.welcomeShown) {
             welcomeScreen.style.display = 'flex';
@@ -68,11 +56,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // TeraBox button
+    function updateTeraboxButton(isLoggedIn) {
+        if (isLoggedIn) {
+            teraboxButton.textContent = 'Open TeraBox';
+            teraboxButton.onclick = () => {
+                chrome.tabs.create({ url: 'https://www.terabox.com' });
+            };
+            // Show the redeem button when logged in
+            redeemButton.style.display = 'block';
+            redeemButton.style.visibility = 'visible';
+            console.log('Redeem button should be visible');
+        } else {
+            teraboxButton.textContent = 'Sign Up for TeraBox';
+            teraboxButton.onclick = () => {
+                chrome.tabs.create({ url: 'https://terabox.com/s/1BjOBgtABLr0eRnUAEHWyug' });
+            };
+            // Hide the redeem button when not logged in
+            redeemButton.style.display = 'none';
+            console.log('Redeem button should be hidden');
+        }
+    }
+
+    // User info and coin count
     function updateUserInfoAndCoinCount() {
         chrome.runtime.sendMessage({action: 'getUserInfoAndCoinCount'}, response => {
             if (response.error) {
                 console.error('Error fetching user info and coin count:', response.error);
                 showError('Failed to load user info and coin count. Please check your connection and login status.');
+                updateTeraboxButton(false);
             } else {
                 if (response.userInfo.code === 0) {
                     profilePicture.src = response.userInfo.data.head_url;
@@ -93,21 +105,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Start and stop buttons
     function updateButtonState(isRunning) {
         startButton.style.display = isRunning ? 'none' : 'block';
         stopButton.style.display = isRunning ? 'block' : 'none';
-    }
-
-    function sendMessage(message) {
-        return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage(message, response => {
-                if (chrome.runtime.lastError) {
-                    reject(chrome.runtime.lastError);
-                } else {
-                    resolve(response);
-                }
-            });
-        });
     }
 
     startButton.addEventListener('click', async function() {
@@ -134,23 +135,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Log window
     logButton.addEventListener('click', function() {
         logWindow.classList.remove('hidden');
+        embeddedPageContainer.classList.add('hidden');
         updateLog();
     });
 
     closeLogButton.addEventListener('click', function() {
         logWindow.classList.add('hidden');
     });
-
-    async function checkStatus() {
-        try {
-            const response = await sendMessage({action: 'getStatus'});
-            updateButtonState(response.isRunning);
-        } catch (error) {
-            console.error('Error getting status:', error);
-        }
-    }
 
     async function updateLog() {
         try {
@@ -162,27 +156,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        if (request.action === 'updateCoinCount') {
-            updateUserInfoAndCoinCount();
-        } else if (request.action === 'logUpdated') {
-            if (!logWindow.classList.contains('hidden')) {
-                updateLog();
-            }
-        } else if (request.action === 'dailyLimitReached') {
-            updateButtonState(false);
-            startButton.textContent = 'Come Back Tomorrow';
-            startButton.disabled = true;
-        }
+    // Redeem button and embedded page
+    redeemButton.addEventListener('click', function() {
+        logWindow.classList.add('hidden');
+        embeddedPageContainer.classList.remove('hidden');
+        embeddedPageContent.src = 'https://www.terabox.com/wap/coins';
     });
 
-    updateUserInfoAndCoinCount();
-    checkStatus();
-
-    setInterval(() => {
-        updateUserInfoAndCoinCount();
-        checkStatus();
-    }, 30000);
+    closeEmbeddedPageButton.addEventListener('click', function() {
+        embeddedPageContainer.classList.add('hidden');
+        embeddedPageContent.src = 'about:blank';
+    });
 
     // Particle effect
     const canvas = document.getElementById('particleCanvas');
@@ -252,21 +236,71 @@ document.addEventListener('DOMContentLoaded', function() {
     const cursor = document.querySelector('.cursor');
 
     document.addEventListener('mousemove', e => {
-        cursor.setAttribute("style", "top: "+(e.pageY - 10)+"px; left: "+(e.pageX - 10)+"px;")
-    })
+        cursor.style.top = `${e.clientY}px`;
+        cursor.style.left = `${e.clientX}px`;
+    });
 
     document.addEventListener('click', () => {
         cursor.classList.add("expand");
         setTimeout(() => {
             cursor.classList.remove("expand");
         }, 500)
-    })
-});
+    });
 
-function showError(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.textContent = message;
-    errorDiv.style.color = 'red';
-    errorDiv.style.marginTop = '10px';
-    document.getElementById('app').appendChild(errorDiv);
-}
+    // Initialize
+    updateUserInfoAndCoinCount();
+    checkStatus();
+
+    setInterval(() => {
+        updateUserInfoAndCoinCount();
+        checkStatus();
+    }, 30000);
+
+    // Helper functions
+    function sendMessage(message) {
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage(message, response => {
+                if (chrome.runtime.lastError) {
+                    reject(chrome.runtime.lastError);
+                } else {
+                    resolve(response);
+                }
+            });
+        });
+    }
+
+    async function checkStatus() {
+        try {
+            const response = await sendMessage({action: 'getStatus'});
+            updateButtonState(response.isRunning);
+        } catch (error) {
+            console.error('Error getting status:', error);
+        }
+    }
+
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.textContent = message;
+        errorDiv.style.color = 'red';
+        errorDiv.style.marginTop = '10px';
+        document.getElementById('app').appendChild(errorDiv);
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+    }
+
+    // Message listeners
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request.action === 'updateCoinCount') {
+            updateUserInfoAndCoinCount();
+        } else if (request.action === 'logUpdated') {
+            if (!logWindow.classList.contains('hidden')) {
+                updateLog();
+            }
+        } else if (request.action === 'dailyLimitReached') {
+            updateButtonState(false);
+            startButton.textContent = 'Come Back Tomorrow';
+            startButton.disabled = true;
+        }
+    });
+});
