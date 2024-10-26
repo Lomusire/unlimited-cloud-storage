@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeEmbeddedPageButton = document.getElementById('close-embedded-page');
     const embeddedPageContent = document.getElementById('embedded-page-content');
 
+    username.innerText = 'UNKNOWN'
+    profilePicture.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/434px-Unknown_person.jpg'
+    coinCount.innerText=0
+
     // Initially hide the redeem button
     redeemButton.style.display = 'none';
 
@@ -149,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function updateLog() {
         try {
             const logs = await sendMessage({action: 'getLogs'});
-            logContent.innerHTML = logs.map(log => `<div>${log}</div>`).join('');
+            logContent.innerHTML = logs.map(log => `<li>${log}</li>`).join('');
             logContent.scrollTop = logContent.scrollHeight;
         } catch (error) {
             console.error('Error getting logs:', error);

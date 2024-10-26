@@ -4,9 +4,11 @@ let teraboxSubdomain = '';
 let dailyLimitReached = false;
 let coins = 0;
 
+let globalLogCount = 0
 function addLog(message) {
-    const timestamp = new Date().toISOString();
-    logs.push(`[${timestamp}] ${message}`);
+    const timestamp = new Date().toLocaleTimeString();
+    globalLogCount++
+    logs.push(`${globalLogCount} : [${timestamp}] ${message}`);
     if (logs.length > 100) {
         logs.shift();
     }
