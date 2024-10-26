@@ -1,9 +1,16 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    cursor: none !important;
+}
+
 body {
     font-family: 'Arial', sans-serif;
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
     margin: 0;
     padding: 20px;
-    width: 300px;
+    min-width: 300px;
     color: #fff;
     cursor: none;
 }
@@ -186,10 +193,10 @@ button {
 }
 
 #redeem-button {
-    display: block; /* Changed from 'none' to always show the button */
+    display: block;
     background: linear-gradient(45deg, #FFD700, #FFA500);
     box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
-    color: #000; /* Ensure text color is visible */
+    color: #000;
     font-weight: bold;
     padding: 15px 25px;
     font-size: 18px;
@@ -231,25 +238,31 @@ button {
 
 #log-window, #embedded-page-container {
     position: fixed;
-    top: 10%;
-    left: 10%;
-    width: 80%;
-    height: 80%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-color: rgba(0, 0, 0, 0.9);
     color: #00ff00;
-    border-radius: 10px;
+    border-radius: 5px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     z-index: 1000;
 }
 
+
 #log-header, #embedded-page-header {
     background-color: #333;
+    width: 100%;
     padding: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+#log-header h4, #embedded-page-header h4{
+    padding: 0 20px;
+    font-size: 15px;
 }
 
 #close-log, #close-embedded-page {
@@ -258,6 +271,7 @@ button {
     color: #fff;
     font-size: 20px;
     cursor: pointer;
+    width: 50px;
 }
 
 #log-content, #embedded-page-content {
@@ -265,8 +279,10 @@ button {
     overflow-y: auto;
     padding: 10px;
     font-family: 'Courier New', monospace;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.5;
+    scrollbar-width: thin;
+    scrollbar-color: green #f1f1f1;
 }
 
 #embedded-page-content {
@@ -373,7 +389,7 @@ button {
     box-shadow: 0 9px #45a049;
     transition: all 0.3s;
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-5px);
 }
 
 .btn-3d:hover {
