@@ -1,5 +1,7 @@
 TeraBox Coin Collector Extension
 
+Currently in beta: Please note this version may be slower and less stable than expected, but it should be functional. 
+
 <p align="center">
   <img src="https://lh3.googleusercontent.com/XYKN1D9li5yEPEkDN-tqDGvfhl3_wrW6eTe1zqQACZEGDxiFSmVPjokPY4ZomDojvruK06d1GtbZfhBckTR55Nbp=s120" alt="TeraBox Coin Collector Logo" width="120"/>
 </p>
