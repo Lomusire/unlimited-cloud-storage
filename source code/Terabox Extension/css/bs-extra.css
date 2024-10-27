@@ -1,0 +1,36 @@
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bg-glass-blur {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(4px);
+    border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.animation-from-side {
+    animation: animationFside .2s linear alternate;
+}
+
+@keyframes animationFside {
+    0% {
+        transform: translateX(500px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+input[name="inlineRadioOptions"]:checked+label {
+    background-color: white;
+    color: black;
+}
+
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
