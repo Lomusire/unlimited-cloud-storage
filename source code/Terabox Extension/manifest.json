@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TeraBox Coin Collector",
-  "version": "1.6",
+  "version": "1.7",
   "description": "Collect coins from TeraBox and get unlimited free cloud storage and premium on TeraBox",
   "permissions": [
     "alarms",

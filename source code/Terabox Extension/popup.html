@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeraBox Coin Collector</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="./css/bootstrap5-2.min.css">
+    <link rel="stylesheet" href="./css/bs-extra.css">
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
+
 <body>
     <div id="welcome-screen" class="fullscreen">
         <div class="welcome-content">
@@ -32,17 +36,20 @@
             </div>
             <span id="username"></span>
         </div>
-        <div id="coin-info">
-            <span>Coins: </span>
-            <span id="coin-count"></span>
+        <div class="d-flex justify-content-between align-items-center gap-3">
+            <div id="coin-info" class="w-100">
+                <span>Coins: </span>
+                <span id="coin-count"></span>
+            </div>
+            <button id="redeem-popup-btn" class="w-50">Store</button>
         </div>
         <button id="start-button">Start Collecting</button>
         <button id="stop-button" style="display: none;">Stop Collecting</button>
         <button id="log-button">Show Log</button>
         <button id="terabox-button">Sign Up for TeraBox</button>
-        <button id="redeem-button" class="btn-3d redeem-btn">Redeem Coins</button>
+        <button id="redeem-button" class="btn-3d redeem-btn">Redeem Coins ⧉</button>
     </div>
-    
+
     <div id="log-window" class="hidden">
         <div id="log-header">
             <h4>Network Log</h4>
@@ -50,7 +57,7 @@
         </div>
         <ul id="log-content"></ul>
     </div>
-    
+
     <div id="embedded-page-container" class="hidden">
         <div id="embedded-page-header">
             <h4>Redeem Coins</h4>
@@ -58,7 +65,45 @@
         </div>
         <iframe id="embedded-page-content" src="about:blank"></iframe>
     </div>
+
     
-    <script src="popup.js"></script>
+    <div id="redeem-popup-container" class="d-none p-3">
+        <div class=" border rounded-2 rounded-bottom-0 bg-glass-blur">
+            <div class="px-3 d-flex justify-content-between align-items-center">
+                <h5 class="text-nowrap m-0 p-0 ">Store</h5>
+                <button id="redeem-popup-close-btn" class="w-25 btn btn-close-white text-white m-0 p-0 fs-1">×</button>
+            </div>
+            <div class="d-flex w-100 justify-content-center pb-2 py-1 " style="scale: .9;">
+                <div class="form-check form-check-inline  mx-2 p-0">
+                    <input class="form-check-input d-none" type="radio" name="inlineRadioOptions" id="inlineRadio1"
+                        value="0" checked>
+                    <label class="form-check-label border fw-bold px-2 py-1  rounded-2" for="inlineRadio1">All</label>
+                </div>
+                <div class="form-check form-check-inline mx-2 p-0">
+                    <input class="form-check-input d-none" type="radio" name="inlineRadioOptions" id="inlineRadio2"
+                        value="1">
+                    <label class="form-check-label border fw-bold px-2 py-1 rounded-2"
+                        for="inlineRadio2">Storage</label>
+                </div>
+                <div class="form-check form-check-inline mx-2 p-0">
+                    <input class="form-check-input d-none" type="radio" name="inlineRadioOptions" id="inlineRadio3"
+                        value="3">
+                    <label class="form-check-label border fw-bold px-2 py-1  rounded-2" for="inlineRadio3">Gifts</label>
+                </div>
+            </div>
+        </div>
+
+        <div class=" accordion accordion-flush overflow-y-scroll pb-5 border border-top-0 rounded-2 rounded-top-0 bg-glass-blur overflow-hidden"
+            id="buy-items-lists" style="height:80%;">
+        </div>
+
+        <div class="position-absolute bottom-0 end-0 w-100 z-3 overflow-hidden p-2" id="message-thrower-container">
+        </div>
+    </div>
+
+    <script defer src="./js/popup.js"></script>
+    <script defer src="./js/bootstrap5-2.min.js"></script>
+    <script defer src="./js/extrapopup.js"></script>
 </body>
+
 </html>
