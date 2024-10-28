@@ -48,7 +48,7 @@ This project is an independent initiative and is not affiliated with, endorsed b
 - Response Time: 24-48 business hours
 
 ## 📝 Changelog
-### Version 1.0.0
+### Version 1.7
 - Initial release
 - Core coin collection functionality
 - Intuitive user interface
