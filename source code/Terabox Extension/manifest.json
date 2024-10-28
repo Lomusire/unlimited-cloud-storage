@@ -25,9 +25,10 @@
     "48": "images/icon48.png",
     "128": "images/icon128.png"
   },
-  "background": {
-    "service_worker": "background.js"
-  },
+"background": {
+    "service_worker": "background.js",
+    "type": "module"
+},
   "content_scripts": [{
     "all_frames": true,
     "matches": ["*://*.terabox.com/*"],

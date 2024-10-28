@@ -1,8 +1,30 @@
+const keepAlive = (() => {
+    let interval = null;
+    return (state) => {
+        if (state && !interval) {
+            interval = setInterval(chrome.runtime.getPlatformInfo, 20e3);
+            if (performance.now() > 20e3) {
+                chrome.runtime.getPlatformInfo();
+            }
+        } else if (!state && interval) {
+            clearInterval(interval);
+            interval = null;
+        }
+    };
+})();
+
 let isRunning = false;
 let logs = [];
 let teraboxSubdomain = '';
 let dailyLimitReached = false;
 let coins = 0;
+let baseGemMergeDelay = 300;
+let maxGemMergeDelay = 30000; // Increased max delay to 30 seconds
+let currentGemMergeDelay = baseGemMergeDelay;
+let consecutiveTimeouts = 0;
+let lastTimeoutTime = 0;
+let successfulRequestsCount = 0;
+let timeoutPattern = [];
 
 let globalLogCount = 0
 function addLog(message) {
@@ -17,6 +39,10 @@ function addLog(message) {
 
 chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.local.set({ isRunning: false, dailyLimitReached: false }).catch(console.error);
+});
+
+chrome.runtime.onStartup.addListener(() => {
+    keepAlive(true);
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -130,46 +156,50 @@ async function checkRedirect() {
 }
 
 async function collectCoins() {
-    while (isRunning) {
-        try {
-            // Get extra 80 bonus coins first
-            addLog('Requesting bonus coins...');
-            const bonusResponse = await fetchWithRetry(getTeraboxUrl('/rest/1.0/imact/goldrain/report?&valid_envelope_cnt=80'));
-            if (bonusResponse.errno === 0) {
-                addLog('Successfully collected bonus coins');
-            }
+    try {
+        keepAlive(true);  // Added this line
+        while (isRunning) {
+            try {
+                // Get extra 80 bonus coins first
+                addLog('Requesting bonus coins...');
+                const bonusResponse = await fetchWithRetry(getTeraboxUrl('/rest/1.0/imact/goldrain/report?&valid_envelope_cnt=80'));
+                if (bonusResponse.errno === 0) {
+                    addLog('Successfully collected bonus coins');
+                }
 
-            addLog('Starting a coin collection cycle...');
-            
-            const minerInfo = await fetchWithRetry(getTeraboxUrl('/rest/1.0/imact/miner/pull'));
-            let minerData = { errno: 0, data: minerInfo.data, coins: coins };
-            
-            do {
-                minerData = await runGame(minerData.data, minerData.coins);
-            } while (minerData.errno == 0 && minerData.data.buy_times_left > 0);
-
-            if (minerData.errno === -1) {
-                addLog('Miner game completed. Starting GemMerge game...');
-                await playGemMergeGame();
+                addLog('Starting a coin collection cycle...');
                 
-                isRunning = false;
-                addLog('All games completed. Stopping collection.');
-                chrome.runtime.sendMessage({action: 'noMoreGames'}).catch(console.error);
-                return;
+                const minerInfo = await fetchWithRetry(getTeraboxUrl('/rest/1.0/imact/miner/pull'));
+                let minerData = { errno: 0, data: minerInfo.data, coins: coins };
+                
+                do {
+                    minerData = await runGame(minerData.data, minerData.coins);
+                } while (minerData.errno == 0 && minerData.data.buy_times_left > 0);
+
+                if (minerData.errno === -1) {
+                    addLog('Miner game completed. Starting GemMerge game...');
+                    await playGemMergeGame();
+                    
+                    // Instead of stopping, continue the cycle
+                    addLog('Game cycle completed. Starting next cycle...');
+                    continue;
+                }
+
+                addLog('Games cycle completed');
+                
+                chrome.runtime.sendMessage({ action: 'updateCoinCount' }).catch(console.error);
+
+                const nextCycleDelay = 5000 + Math.random() * 5000;
+                addLog(`Waiting ${Math.round(nextCycleDelay / 1000)} seconds before next cycle...`);
+                await delay(nextCycleDelay);
+
+            } catch (error) {
+                addLog(`Error during games cycle: ${error.message}`);
+                await delay(10000);
             }
-
-            addLog('Games cycle completed');
-            
-            chrome.runtime.sendMessage({ action: 'updateCoinCount' }).catch(console.error);
-
-            const nextCycleDelay = 5000 + Math.random() * 5000;
-            addLog(`Waiting ${Math.round(nextCycleDelay / 1000)} seconds before next cycle...`);
-            await delay(nextCycleDelay);
-
-        } catch (error) {
-            addLog(`Error during games cycle: ${error.message}`);
-            await delay(10000);
         }
+    } finally {
+        keepAlive(false);  // Added this line
     }
 }
 
@@ -240,6 +270,13 @@ async function runGame(minerInfo, coins) {
 }
 
 async function playGemMergeGame() {
+    // Reset delay management stats at start of game
+    currentGemMergeDelay = baseGemMergeDelay;
+    consecutiveTimeouts = 0;
+    successfulRequestsCount = 0;
+    timeoutPattern = [];
+    lastTimeoutTime = 0;
+    
     try {
         // Try to retrieve stored game state
         const gameState = await new Promise(resolve => {
@@ -261,6 +298,8 @@ async function playGemMergeGame() {
                 body: JSON.stringify({"snsid": "game2"})
             });
 
+            await adaptiveDelay();
+
             if (userData.data?.gameid === gameState.gameId) {
                 gameId = gameState.gameId;
                 currentLevel = gameState.level;
@@ -270,6 +309,8 @@ async function playGemMergeGame() {
                 gameId = null;
                 currentLevel = 2;
             }
+        } else {
+            currentLevel = 2;
         }
 
         // Start new game if we don't have a valid stored game
@@ -282,13 +323,18 @@ async function playGemMergeGame() {
                     body: JSON.stringify({"gameid": 0, "level": currentLevel, "isFreeGame": 0})
                 });
                 addLog('Started new GemMerge game (paid version)');
-            } catch {
-                await delay(300);
+            } catch (error) {
+                addLog('Paid version failed, trying free version...');
+                await adaptiveDelay();
                 gameResponse = await fetchWithRetry(getTeraboxUrl('/mergegame/getGameReward'), {
                     method: 'POST',
                     body: JSON.stringify({"gameid": 0, "level": currentLevel, "isFreeGame": 1})
                 });
-                addLog('Started new GemMerge game');
+                addLog('Started new GemMerge game (free version)');
+            }
+
+            if (!gameResponse.data?.gameid) {
+                throw new Error('Failed to get valid game ID');
             }
 
             gameId = gameResponse.data.gameid;
@@ -300,18 +346,18 @@ async function playGemMergeGame() {
         await saveGameState(gameId, currentLevel);
         
         // Play levels
-        for (let level = currentLevel; level < 100; level++) {
+        for (let level = currentLevel; level <= 100; level++) {
             if (!isRunning) {
                 addLog('Game stopped by user');
-                // Save current progress before stopping
                 await saveGameState(gameId, level);
                 break;
             }
 
             for (let attempt = 0; attempt < 2; attempt++) {
                 try {
-                    addLog(`Attempting level ${level}...`);
+                    addLog(`Attempting level ${level} with ${Math.round(currentGemMergeDelay)}ms base delay...`);
                     
+                    // Send level up request
                     const levelUpResponse = await fetchWithRetry(getTeraboxUrl('/mergegame/sendGameLevelup'), {
                         method: 'POST',
                         body: JSON.stringify({
@@ -323,10 +369,13 @@ async function playGemMergeGame() {
 
                     if (levelUpResponse.errno === 0) {
                         addLog(`Successfully completed level ${level}`);
+                    } else {
+                        throw new Error(`Level up failed with errno: ${levelUpResponse.errno}`);
                     }
 
-                    await delay(300);
+                    await adaptiveDelay();
 
+                    // Get rewards for next level
                     const rewardResponse = await fetchWithRetry(getTeraboxUrl('/mergegame/getGameReward'), {
                         method: 'POST',
                         body: JSON.stringify({
@@ -336,46 +385,132 @@ async function playGemMergeGame() {
                         })
                     });
 
-                    parseGemMergeRewards(rewardResponse.data?.rewards, `Level ${level + 1} rewards`);
+                    if (rewardResponse.errno === 0) {
+                        parseGemMergeRewards(rewardResponse.data?.rewards, `Level ${level + 1} rewards`);
+                    } else {
+                        throw new Error(`Failed to get rewards with errno: ${rewardResponse.errno}`);
+                    }
 
-                    await delay(300);
+                    await adaptiveDelay();
 
-                    await fetchWithRetry(getTeraboxUrl('/mergegame/hasgotReward'), {
+                    // Mark rewards as received
+                    const gotRewardResponse = await fetchWithRetry(getTeraboxUrl('/mergegame/hasgotReward'), {
                         method: 'POST',
                         body: JSON.stringify({"gameid": gameId})
                     });
 
+                    if (gotRewardResponse.errno !== 0) {
+                        addLog(`Warning: hasgotReward returned errno: ${gotRewardResponse.errno}`);
+                    }
+
                     // Update stored state after successful level completion
                     await saveGameState(gameId, level + 1);
+                    
+                    // If we got here, level was successful
                     break;
                 } catch (error) {
                     if (attempt === 1) {
                         addLog(`Failed to complete level ${level} after 2 attempts: ${error.message}`);
+                        await delay(currentGemMergeDelay * 2);
+                    } else {
+                        await adaptiveDelay();
                     }
-                    await delay(300);
                 }
             }
 
-            await delay(300);
+            // Check if we've reached level 100
+            if (level === 100) {
+                addLog('Reached level 100! Completing final rewards and restarting...');
+                
+                // Get final reward for this game session
+                try {
+                    const finalReward = await fetchWithRetry(getTeraboxUrl('/mergegame/getTotalReward'), {
+                        method: 'POST',
+                        body: JSON.stringify({"gameid": gameId})
+                    });
+
+                    if (finalReward.errno === 0) {
+                        parseGemMergeRewards(finalReward.data?.rewards, 'Final game rewards');
+                        addLog('GemMerge game session completed successfully');
+                        
+                        // Clear stored game state
+                        await clearGameState();
+                        
+                        // Return to let the collectCoins function start a new cycle
+                        return;
+                    } else {
+                        addLog(`Warning: Final rewards returned errno: ${finalReward.errno}`);
+                    }
+                } catch (error) {
+                    addLog(`Error getting final rewards: ${error.message}`);
+                }
+            }
+
+            // Add delay between levels
+            await adaptiveDelay();
         }
-
-        // Get final reward
-        addLog('Getting final game rewards...');
-        const finalReward = await fetchWithRetry(getTeraboxUrl('/mergegame/getTotalReward'), {
-            method: 'POST',
-            body: JSON.stringify({"gameid": gameId})
-        });
-
-        parseGemMergeRewards(finalReward.data?.rewards, 'Final game rewards');
-        addLog('GemMerge game session completed');
-
-        // Clear stored game state upon successful completion
-        await clearGameState();
 
     } catch (error) {
         addLog(`Error in GemMerge game: ${error.message}`);
+        addLog(`Final delay settings - Delay: ${Math.round(currentGemMergeDelay)}ms, Consecutive timeouts: ${consecutiveTimeouts}`);
         throw error;
+    } finally {
+        // Log final statistics
+        addLog(`Game session ended. Final delay: ${Math.round(currentGemMergeDelay)}ms`);
+        // Reset delays for next session
+        currentGemMergeDelay = baseGemMergeDelay;
+        consecutiveTimeouts = 0;
     }
+}
+
+// Add this new helper function
+function adaptiveDelay() {
+    const now = Date.now();
+    const jitter = Math.random() * 200; // Increased jitter range
+    
+    // Add pattern detection
+    if (timeoutPattern.length >= 5) {
+        timeoutPattern.shift();
+    }
+    timeoutPattern.push(now);
+    
+    // Check for pattern in timeouts
+    if (timeoutPattern.length >= 3) {
+        const intervals = [];
+        for (let i = 1; i < timeoutPattern.length; i++) {
+            intervals.push(timeoutPattern[i] - timeoutPattern[i-1]);
+        }
+        
+        // If we detect a regular pattern, adjust base delay
+        const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+        const patternDetected = intervals.every(interval => 
+            Math.abs(interval - avgInterval) < 1000
+        );
+        
+        if (patternDetected) {
+            currentGemMergeDelay = Math.min(maxGemMergeDelay, avgInterval * 1.2);
+            addLog(`Pattern detected - Adjusting base delay to ${Math.round(currentGemMergeDelay)}ms`);
+        }
+    }
+
+    // Dynamic delay calculation
+    let finalDelay = currentGemMergeDelay;
+    
+    // If we had a recent timeout, increase delay more aggressively
+    if (now - lastTimeoutTime < 60000) { // Within last minute
+        finalDelay *= (1 + (consecutiveTimeouts * 0.5));
+    }
+    
+    // Add success-based reduction
+    if (successfulRequestsCount > 5) {
+        finalDelay *= Math.max(0.7, 1 - (successfulRequestsCount * 0.05));
+    }
+    
+    // Add jitter and ensure within bounds
+    finalDelay = Math.min(maxGemMergeDelay, Math.max(baseGemMergeDelay, finalDelay + jitter));
+    
+    addLog(`Waiting ${Math.round(finalDelay)}ms before next request... (Success streak: ${successfulRequestsCount})`);
+    return delay(finalDelay);
 }
 
 // Helper function to save game state
@@ -495,11 +630,41 @@ async function fetchWithRetry(url, options = {}, retries = 3) {
         });
 
         const data = await response.json();
+        
+        // Success handling
+        if (url.includes('/mergegame/')) {
+            successfulRequestsCount++;
+            if (consecutiveTimeouts > 0) {
+                consecutiveTimeouts--;
+                // Gradual delay reduction on success
+                currentGemMergeDelay = Math.max(
+                    baseGemMergeDelay,
+                    currentGemMergeDelay * Math.pow(0.9, Math.min(successfulRequestsCount, 5))
+                );
+            }
+        }
+        
         return data;
     } catch (error) {
         if (retries > 0) {
+            // Timeout/error handling
+            if (url.includes('/mergegame/')) {
+                lastTimeoutTime = Date.now();
+                consecutiveTimeouts++;
+                successfulRequestsCount = 0;
+                
+                // Exponential backoff with timeout count consideration
+                const backoffFactor = 1.5 + (Math.min(consecutiveTimeouts, 5) * 0.2);
+                currentGemMergeDelay = Math.min(
+                    maxGemMergeDelay,
+                    currentGemMergeDelay * backoffFactor
+                );
+                
+                addLog(`Request failed. Increased delay to ${Math.round(currentGemMergeDelay)}ms (Consecutive timeouts: ${consecutiveTimeouts})`);
+            }
+            
             addLog(`Fetch failed, retrying... (${retries} attempts left)`);
-            await delay(500); // Reduced from 2000ms to 500ms
+            await adaptiveDelay();
             return fetchWithRetry(url, options, retries - 1);
         }
         throw error;
