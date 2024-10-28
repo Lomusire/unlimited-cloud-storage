@@ -1,4 +1,4 @@
-TeraBox Coin Collector Extension
+# TeraBox Coin Collector Extension
 
 Currently in beta: Please note this version may be slower and less stable than expected, but it should be functional. 
 
@@ -20,7 +20,7 @@ Currently in beta: Please note this version may be slower and less stable than e
 
 ## 🌟 Overview
 
-The TeraBox Coin Collector is an unofficial browser extension designed to simplify the process of collecting coins on TeraBox, allowing users to potentially earn unlimited free cloud storage and premium features daily.
+The TeraBox Coin Collector is a browser extension designed to simplify the process of collecting coins on TeraBox. The extension automates what would otherwise be a manual process, making it more convenient for users to collect their daily coins.
 
 ### 🎁 Benefits:
 
@@ -41,47 +41,46 @@ Join thousands of happy users enjoying:
 
 ## 🚀 Features
 
-- One-click coin collection
+- Automated coin collection
 - Potential to earn up to 5TB of free cloud storage daily
 - Opportunity to gain 2 years of free premium access every day
 - Access to fast upload speeds (50MB/s+)
 
 ## 🔧 How to Get Started
 
-1. Install the extension from the [Chrome Web Store](https://chromewebstore.google.com/detail/terabox-coin-collector/hbekcbjbdkcoggmjnpnffioipgadlkfl).
-2. Click the "Sign Up" button on the extension.
-3. Sign up for TeraBox on the page that opens.
+1. Install the extension from the [Chrome Web Store](https://chromewebstore.google.com/detail/terabox-coin-collector/hbekcbjbdkcoggmjnpnffioipgadlkfl)
+2. Click the "Sign Up" button on the extension
+3. Sign up for TeraBox on the page that opens
 4. Start collecting coins automatically!
-5. Download the TeraBox mobile app.
+5. Download the TeraBox mobile app
 6. Redeem your coins in the app for MASSIVE storage! 📱💎
 
 ### ⚠️ Important Note
 
 If you encounter an error like "integrala not found," please try the following:
 
-- **Collect 9 coins manually** first using the TeraBox mobile app.
-- **Clear your browser cookies** and attempt to sign up for a new TeraBox account using the "Sign Up" button of the extension.
+- **Collect 9 coins manually** first using the TeraBox mobile app
+- **Clear your browser cookies** and attempt to sign up for a new TeraBox account using the "Sign Up" button of the extension
 
 ## 📜 Legal Notice
 
-- **Disclaimer of Liability**
-- This extension ("the Software") is provided "as is" and "as available" without any warranties, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement. The developers ("we," "our," or "us") make no guarantees that the Software will function without errors, interruptions, or incompatibilities with future changes to TeraBox or any related services. Users ("you" or "your") acknowledge and agree that the use of the Software is entirely at your own risk.
+### Purpose and Intent
+This extension ("the Software") is designed solely to assist users in collecting TeraBox coins through legitimate means, automating what would otherwise be a manual process. The Software is created with the intention of enhancing user experience and is not designed to harm, exploit, or compromise TeraBox's services or systems in any way. Our goal is to provide a convenient tool for users while respecting TeraBox's platform and services.
 
-- By using the Software, you agree that we will not be held responsible for any damages, direct or indirect, including but not limited to loss of data, system failure, business interruption, or other financial losses arising from the use or inability to use the Software, even if we have been advised of the possibility of such damages.Compliance with TeraBox's Terms of Service.
+### Disclaimer of Liability
+This extension is provided "as is" and "as available" without any warranties, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement. The developers ("we," "our," or "us") make no guarantees that the Software will function without errors, interruptions, or incompatibilities with future changes to TeraBox or any related services.
 
-- The Software is an independent project and is not affiliated with, endorsed by, or in any way officially connected with TeraBox, Flextech, Inc., or any of its subsidiaries or affiliates. TERABOX is a trademark of Flextech, Inc. Use of this trademark is for identification purposes only and does not imply any endorsement or affiliation.
+### Relationship to TeraBox
+The Software is an independent project and is not affiliated with, endorsed by, or in any way officially connected with TeraBox, Flextech, Inc., or any of its subsidiaries or affiliates. TERABOX is a trademark of Flextech, Inc. Use of this trademark is for identification purposes only and does not imply any endorsement or affiliation.
 
-- You are solely responsible for ensuring that your use of the Software complies with all applicable laws and TeraBox's terms of service, including but not limited to restrictions on reverse engineering, bypassing security measures, or using unauthorized methods to access TeraBox's services. Any actions taken with the Software that violate TeraBox's terms of service are at your own risk, and we disclaim any liability for consequences arising from such actions. No Warranty or Maintenance.
+### Takedown Requests and Communication
+We respect the rights of Flextech, Inc. and are committed to maintaining a cooperative relationship. Representatives of Flextech, Inc. may submit takedown requests or other legal notices regarding this Software by contacting supershadowcube@gmail.com. We are committed to addressing such requests promptly and will take appropriate action as necessary to address any legitimate concerns.
 
-- The Software may become inoperative or lose functionality due to changes in TeraBox's services, APIs, or terms of service. We are under no obligation to update, maintain, or support the Software in response to these changes. You agree to use the Software in its current state, with no assurances of future updates or compatibility.
+### User Responsibilities
+You are solely responsible for ensuring that your use of the Software complies with all applicable laws and TeraBox's terms of service. Any actions taken with the Software that violate TeraBox's terms of service are at your own risk, and we disclaim any liability for consequences arising from such actions.
 
-- **Indemnification**
-- You agree to indemnify, defend, and hold harmless the developers of the Software from and against any and all claims, damages, losses, liabilities, costs, and expenses (including legal fees) arising out of or related to your use of the Software, including but not limited to violations of TeraBox's terms of service, local laws, or third-party rights.
-- Modification and Termination - We reserve the right to modify, suspend, or discontinue the Software at any time, without prior notice. Any changes to this disclaimer will be posted on the project's repository, and continued use of the Software will indicate your acceptance of any revised terms.
-- Governing Law - This disclaimer and any disputes arising out of or related to the use of the Software shall be governed by the laws of [Your Jurisdiction], without regard to its conflict of law provisions.
-- Contact Information - For any questions regarding this disclaimer, please contact the project maintainers via the repository’s contact information.
-
-- ### IMPORTANT NOTE - BY USING THIS EXTENSION, YOU AGREE TO INDEMNIFY AND HOLD HARMLESS THE DEVELOPERS AND CONTRIBUTORS OF THIS SOFTWARE FROM ANY CLAIMS, LIABILITIES, DAMAGES, LOSSES, OR EXPENSES (INCLUDING LEGAL FEES) ARISING FROM YOUR USE OF THE EXTENSION, YOUR VIOLATION OF TERABOX’S TERMS OF SERVICE, OR ANY LEGAL ISSUES ARISING FROM THE USE OF THIS EXTENSION. USE OF THIS EXTENSION IS ENTIRELY AT YOUR OWN RISK, AND YOU ASSUME FULL RESPONSIBILITY FOR ENSURING COMPLIANCE WITH ALL APPLICABLE LAWS AND TERMS.
+### Important Notice
+BY USING THIS EXTENSION, YOU AGREE TO INDEMNIFY AND HOLD HARMLESS THE DEVELOPERS AND CONTRIBUTORS OF THIS SOFTWARE FROM ANY CLAIMS, LIABILITIES, DAMAGES, LOSSES, OR EXPENSES (INCLUDING LEGAL FEES) ARISING FROM YOUR USE OF THE EXTENSION.
 
 ## 🔒 Privacy
 
@@ -89,7 +88,7 @@ This extension does not collect or store any personal data. It only interacts wi
 
 ## 🆘 Support
 
-For support or inquiries, please contact Lomusire at [supershadowcube@gmail.com](mailto:supershadowcube@gmail.com).
+For support or inquiries, please contact Lomusire at [supershadowcube@gmail.com](mailto:supershadowcube@gmail.com)
 
 ## ⭐ Star History
 
