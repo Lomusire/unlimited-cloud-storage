@@ -64,7 +64,24 @@ If you encounter an error like "integrala not found," please try the following:
 
 ## 📜 Legal Notice
 
-This extension is provided "as is" without any warranties. Users are responsible for ensuring their use of this extension complies with TeraBox's terms of service. The developers of this extension are not responsible for any changes in TeraBox's policies or any consequences resulting from the use of this extension.
+- **Disclaimer of Liability**
+- This extension ("the Software") is provided "as is" and "as available" without any warranties, either express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement. The developers ("we," "our," or "us") make no guarantees that the Software will function without errors, interruptions, or incompatibilities with future changes to TeraBox or any related services. Users ("you" or "your") acknowledge and agree that the use of the Software is entirely at your own risk.
+
+- By using the Software, you agree that we will not be held responsible for any damages, direct or indirect, including but not limited to loss of data, system failure, business interruption, or other financial losses arising from the use or inability to use the Software, even if we have been advised of the possibility of such damages.Compliance with TeraBox's Terms of Service.
+
+- The Software is an independent project and is not affiliated with, endorsed by, or in any way officially connected with TeraBox, Flextech, Inc., or any of its subsidiaries or affiliates. TERABOX is a trademark of Flextech, Inc. Use of this trademark is for identification purposes only and does not imply any endorsement or affiliation.
+
+- You are solely responsible for ensuring that your use of the Software complies with all applicable laws and TeraBox's terms of service, including but not limited to restrictions on reverse engineering, bypassing security measures, or using unauthorized methods to access TeraBox's services. Any actions taken with the Software that violate TeraBox's terms of service are at your own risk, and we disclaim any liability for consequences arising from such actions. No Warranty or Maintenance.
+
+- The Software may become inoperative or lose functionality due to changes in TeraBox's services, APIs, or terms of service. We are under no obligation to update, maintain, or support the Software in response to these changes. You agree to use the Software in its current state, with no assurances of future updates or compatibility.
+
+- **Indemnification**
+- You agree to indemnify, defend, and hold harmless the developers of the Software from and against any and all claims, damages, losses, liabilities, costs, and expenses (including legal fees) arising out of or related to your use of the Software, including but not limited to violations of TeraBox's terms of service, local laws, or third-party rights.
+- Modification and Termination - We reserve the right to modify, suspend, or discontinue the Software at any time, without prior notice. Any changes to this disclaimer will be posted on the project's repository, and continued use of the Software will indicate your acceptance of any revised terms.
+- Governing Law - This disclaimer and any disputes arising out of or related to the use of the Software shall be governed by the laws of [Your Jurisdiction], without regard to its conflict of law provisions.
+- Contact Information - For any questions regarding this disclaimer, please contact the project maintainers via the repository’s contact information.
+
+- ### IMPORTANT NOTE - BY USING THIS EXTENSION, YOU AGREE TO INDEMNIFY AND HOLD HARMLESS THE DEVELOPERS AND CONTRIBUTORS OF THIS SOFTWARE FROM ANY CLAIMS, LIABILITIES, DAMAGES, LOSSES, OR EXPENSES (INCLUDING LEGAL FEES) ARISING FROM YOUR USE OF THE EXTENSION, YOUR VIOLATION OF TERABOX’S TERMS OF SERVICE, OR ANY LEGAL ISSUES ARISING FROM THE USE OF THIS EXTENSION. USE OF THIS EXTENSION IS ENTIRELY AT YOUR OWN RISK, AND YOU ASSUME FULL RESPONSIBILITY FOR ENSURING COMPLIANCE WITH ALL APPLICABLE LAWS AND TERMS.
 
 ## 🔒 Privacy
 
